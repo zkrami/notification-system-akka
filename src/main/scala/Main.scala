@@ -1,4 +1,5 @@
-import actors.WebMain
+import actors.System
+import actors.System.{FailureReply, SuccessReply}
 import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
@@ -24,8 +25,10 @@ import spray.json.RootJsonFormat
 
 object Main extends App {
 
+  implicit val timeout: Timeout = Timeout.zero
+
   // init Actor System
-  implicit val system = ActorSystem(WebMain(), "notification-system")
+  implicit val system = ActorSystem(System(), "notification-system")
   implicit val executionContext = system.executionContext
 
 
@@ -48,7 +51,7 @@ object Main extends App {
      * Code: 200, Message: List of identifiers, DataType: Seq[Identifier]
      */
     override def identifiersGet()(implicit toEntityMarshallerIdentifierarray: ToEntityMarshaller[Seq[Identifier]]): Route =
-      requestContext =>  identifiersGet200(Seq(Identifier("test1")))(toEntityMarshallerIdentifierarray)(requestContext)
+      requestContext => identifiersGet200(Seq(Identifier("test1")))(toEntityMarshallerIdentifierarray)(requestContext)
 
     /**
      * Code: 200, Message: Identifier created
@@ -60,7 +63,14 @@ object Main extends App {
      * Code: 200, Message: Identifier created
      * Code: 400, Message: Identifier could not be created
      */
-    override def identifiersPost(identifier: Option[Identifier]): Route = ???
+    override def identifiersPost(identifier: Identifier): Route = requestContext => {
+      val result = system ? (ref => System.CreateIdentifier(identifier.identifier , ref ))
+      result.flatMap{
+        case SuccessReply => identifiersPost200(requestContext)
+        case FailureReply => identifiersPost400(requestContext)
+      }
+    }
+
 
     /**
      * Code: 200, Message: List of all notifications sent through the system, DataType: Seq[Notification]

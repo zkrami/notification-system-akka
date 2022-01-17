@@ -105,7 +105,7 @@ trait DefaultApiService {
    * Code: 200, Message: Identifier created
    * Code: 400, Message: Identifier could not be created
    */
-  def identifiersPost(identifier: Option[Identifier]): Route
+  def identifiersPost(identifier: Identifier): Route
 
   def notificationsGet200(responseNotificationarray: Seq[Notification])(implicit toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]]): Route =
     complete((200, responseNotificationarray))
