@@ -137,7 +137,7 @@ paths:
   /stats/:
     get: 
       summary: Get statistics of notifications 
-      description: Get statistics of sent and recieved notifications 
+      description: Get statistics of sent and received notifications
       responses: 
           200:
             description: Statistics of all notifications 
@@ -148,13 +148,13 @@ paths:
                  properties:
                   sent: 
                     type: integer 
-                  recieved: 
+                  received:
                     type: integer
     
   /stats/{id}:
     get: 
       summary: Get statistics of a single notification
-      description: Get the identifiers that recieved the notification and the identifiers to whom the notification has been sent 
+      description: Get the identifiers that received the notification and the identifiers to whom the notification has been sent
       parameters: 
       - name: id 
         in: path 
