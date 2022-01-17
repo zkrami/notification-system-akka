@@ -1,0 +1,14 @@
+.openapi-generator-ignore
+README.md
+build.sbt
+src/main/scala/org/openapitools/server/AkkaHttpHelper.scala
+src/main/scala/org/openapitools/server/Controller.scala
+src/main/scala/org/openapitools/server/MultipartDirectives.scala
+src/main/scala/org/openapitools/server/StringDirectives.scala
+src/main/scala/org/openapitools/server/api/DefaultApi.scala
+src/main/scala/org/openapitools/server/model/Identifier.scala
+src/main/scala/org/openapitools/server/model/InlineObject.scala
+src/main/scala/org/openapitools/server/model/InlineResponse200.scala
+src/main/scala/org/openapitools/server/model/InlineResponse2001.scala
+src/main/scala/org/openapitools/server/model/Notification.scala
+src/main/scala/org/openapitools/server/model/NotificationsIdentifiers.scala
