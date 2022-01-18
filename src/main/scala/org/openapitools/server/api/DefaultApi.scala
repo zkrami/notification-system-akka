@@ -8,7 +8,7 @@ import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.http.scaladsl.unmarshalling.FromStringUnmarshaller
 import org.openapitools.server.AkkaHttpHelper._
 import org.openapitools.server.model.Identifier
-import org.openapitools.server.model.InlineObject
+import org.openapitools.server.model.PublishNotificationPayload
 import org.openapitools.server.model.Statistics
 import org.openapitools.server.model.NotificationStatistics
 import org.openapitools.server.model.Notification
@@ -54,8 +54,8 @@ class DefaultApi(
       } ~
       path("notifications") {
         post {
-          entity(as[InlineObject]) { inlineObject =>
-            defaultService.notificationsPost(inlineObject = Some(inlineObject))
+          entity(as[PublishNotificationPayload]) { inlineObject =>
+            defaultService.notificationsPost(inlineObject = inlineObject)
           }
         }
       } ~
@@ -135,7 +135,7 @@ trait DefaultApiService {
    * Code: 200, Message: Notifications created
    * Code: 400, Message: Notifications could not be created
    */
-  def notificationsPost(inlineObject: Option[InlineObject]): Route
+  def notificationsPost(inlineObject: PublishNotificationPayload): Route
 
   def statsGet200(responseInlineResponse200: Statistics)(implicit toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics]): Route =
     complete((200, responseInlineResponse200))
@@ -160,7 +160,7 @@ trait DefaultApiService {
 trait DefaultApiMarshaller {
   implicit def fromEntityUnmarshallerIdentifier: FromEntityUnmarshaller[Identifier]
 
-  implicit def fromEntityUnmarshallerInlineObject: FromEntityUnmarshaller[InlineObject]
+  implicit def fromEntityUnmarshallerInlineObject: FromEntityUnmarshaller[PublishNotificationPayload]
 
 
   implicit def toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]]

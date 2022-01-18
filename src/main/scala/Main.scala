@@ -35,7 +35,7 @@ object Main extends App {
   object DefaultMarshaller extends DefaultApiMarshaller {
     override implicit def fromEntityUnmarshallerIdentifier: FromEntityUnmarshaller[Identifier] = jsonFormat1(Identifier)
 
-    override implicit def fromEntityUnmarshallerInlineObject: FromEntityUnmarshaller[InlineObject] = ???
+    override implicit def fromEntityUnmarshallerInlineObject: FromEntityUnmarshaller[PublishNotificationPayload] = ???
 
     override implicit def toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]] = ???
 
@@ -53,7 +53,7 @@ object Main extends App {
     override def identifiersGet()(implicit toEntityMarshallerIdentifierarray: ToEntityMarshaller[Seq[Identifier]]): Route =
       requestContext => {
         val result = system ? (ref => System.GetIdentifiers(ref))
-        result.flatMap{
+        result.flatMap {
           case System.GetIdentifiersReply(identifiers) => identifiersGet200(identifiers)(toEntityMarshallerIdentifierarray)(requestContext)
         }
       }
@@ -69,8 +69,8 @@ object Main extends App {
      * Code: 400, Message: Identifier could not be created
      */
     override def identifiersPost(identifier: Identifier): Route = requestContext => {
-      val result = system ? (ref => System.CreateIdentifier(identifier.identifier , ref ))
-      result.flatMap{
+      val result = system ? (ref => System.CreateIdentifier(identifier, ref))
+      result.flatMap {
         case SuccessReply => identifiersPost200(requestContext)
         case FailureReply => identifiersPost400(requestContext)
       }
@@ -91,7 +91,13 @@ object Main extends App {
      * Code: 200, Message: Notifications created
      * Code: 400, Message: Notifications could not be created
      */
-    override def notificationsPost(inlineObject: Option[InlineObject]): Route = ???
+    override def notificationsPost(payload: PublishNotificationPayload): Route = requestContext => {
+      val result = system ? (ref => System.SendNotifications(payload.identifiers, payload.message, ref))
+      result.flatMap {
+        case SuccessReply => identifiersPost200(requestContext)
+        case FailureReply => identifiersPost400(requestContext)
+      }
+    }
 
     /**
      * Code: 200, Message: Statistics of all notifications, DataType: InlineResponse200

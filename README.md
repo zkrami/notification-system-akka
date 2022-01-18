@@ -1,14 +1,12 @@
-
 Sequence Diagram of `POST /api/identifiers`
 
 ```mermaid
 sequenceDiagram
     Client->>HTTP: Create Identifier 
-    HTTP->>System: CreateIdentifier("identifier-string")
+    HTTP->>System: CreateIdentifier(Identifier("identifier-string"))
     System->>HTTP: SuccessReply
     HTTP->>Client: CREATED
  ```
-
 
 Sequence Diagram of `GET /api/identifiers`
 
@@ -20,15 +18,14 @@ sequenceDiagram
     HTTP->>Client: Identifier[]
  ```
 
-
-
 Sequence Diagram of `POST /api/notifications`
+
 ```mermaid
 sequenceDiagram
     Client->>HTTP: Post notifications 
-    HTTP->>System: SendNotifications()
-    System->>NotificationsPublisher: PublishNotification(Identifier[])
-    NotificationsPublisher->> IdentifierActor: AddNotification(Notification)
-    NotificationsPublisher->>HTTP: SuccessReply  
+    HTTP->>System: SendNotifications(message,Identifier[])
+    System->>NotificationPublisher: PublishNotification(message,Identifier[])
+    NotificationPublisher->> IdentifierActor: AddNotification(Notification)
+    NotificationPublisher->>HTTP: SuccessReply  
     HTTP->>Client: CREATED
  ```
