@@ -21,7 +21,11 @@ import org.openapitools.server.api._
 import org.openapitools.server.model._
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.Behavior
+import marshaller.DateMarshaller.DateFormat
 import spray.json.RootJsonFormat
+
+import scala.reflect.ClassTag
+import marshaller._
 
 object Main extends App {
 
@@ -35,9 +39,9 @@ object Main extends App {
   object DefaultMarshaller extends DefaultApiMarshaller {
     override implicit def fromEntityUnmarshallerIdentifier: FromEntityUnmarshaller[Identifier] = jsonFormat1(Identifier)
 
-    override implicit def fromEntityUnmarshallerInlineObject: FromEntityUnmarshaller[PublishNotificationPayload] = ???
+    override implicit def fromEntityUnmarshallerInlineObject: FromEntityUnmarshaller[PublishNotificationPayload] = jsonFormat2(PublishNotificationPayload)(StringJsonFormat, immSeqFormat(jsonFormat1(Identifier)), ClassTag[PublishNotificationPayload])
 
-    override implicit def toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]] = ???
+    override implicit def toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]] =  immSeqFormat(jsonFormat4(Notification))
 
     override implicit def toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics] = ???
 
@@ -80,7 +84,12 @@ object Main extends App {
     /**
      * Code: 200, Message: List of all notifications sent through the system, DataType: Seq[Notification]
      */
-    override def notificationsGet()(implicit toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]]): Route = ???
+    override def notificationsGet()(implicit toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]]): Route = requestContext => {
+      val result = system ? (ref => System.GetNotifications(ref))
+      result.flatMap {
+        case System.GetNotificationsReply(notifications) => notificationsGet200(notifications)(toEntityMarshallerNotificationarray)(requestContext)
+      }
+    }
 
     /**
      * Code: 200, Message: The notifications designated to the identifier, DataType: Seq[Notification]
@@ -92,7 +101,7 @@ object Main extends App {
      * Code: 400, Message: Notifications could not be created
      */
     override def notificationsPost(payload: PublishNotificationPayload): Route = requestContext => {
-      val result = system ? (ref => System.SendNotifications(payload.identifiers, payload.message, ref))
+      val result = system ? (ref => System.SendNotification(payload.identifiers, payload.message, ref))
       result.flatMap {
         case SuccessReply => identifiersPost200(requestContext)
         case FailureReply => identifiersPost400(requestContext)

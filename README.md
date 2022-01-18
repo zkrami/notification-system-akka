@@ -29,3 +29,14 @@ sequenceDiagram
     NotificationPublisher->>HTTP: SuccessReply  
     HTTP->>Client: CREATED
  ```
+
+
+Sequence Diagram of `GET /api/notifications`
+
+```mermaid
+sequenceDiagram
+    Client->>HTTP: Get notifications 
+    HTTP->>System: GetNotifications()
+    System->>HTTP: Notification[]
+    HTTP->>Client: Notification[]
+ ```

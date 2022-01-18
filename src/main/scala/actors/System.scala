@@ -19,7 +19,9 @@ object System {
 
   case class GetIdentifiers(replyTo: ActorRef[Reply]) extends Command
 
-  case class SendNotifications(recipients: Seq[Identifier], message: String, replyTo: ActorRef[Reply]) extends Command
+  case class GetNotifications(replyTo: ActorRef[Reply]) extends Command
+
+  case class SendNotification(recipients: Seq[Identifier], message: String, replyTo: ActorRef[Reply]) extends Command
 
   trait Reply
 
@@ -28,6 +30,8 @@ object System {
   case object FailureReply extends Reply
 
   case class GetIdentifiersReply(identifiers: Seq[Identifier]) extends Reply
+
+  case class GetNotificationsReply(notifications: Seq[Notification]) extends Reply
 
   def apply(): Behavior[Command] =
     Behaviors.setup(context => new System(context))
@@ -53,14 +57,20 @@ class System(context: ActorContext[System.Command]) extends AbstractBehavior[Sys
           ref ! SuccessReply
         }
         this
+
       case GetIdentifiers(ref) =>
         ref ! GetIdentifiersReply(identifiers.keys.map(s => Identifier(s)).toSeq)
         this
-      case SendNotifications(recipients, message, replyTo) =>
-        val notification = Notification(message, "not_implemented", DateTime.now, notifications.size.toString)
+
+      case SendNotification(recipients, message, replyTo) =>
+        val notification = Notification(message, "not_implemented", new java.util.Date(), notifications.size.toString)
         notifications += notification
         val publisher = context.spawn(NotificationPublisher(this.identifiers, recipients, notification, replyTo), s"notification-publisher-${notification.id}")
         publisher ! NotificationPublisher.Process
+        this
+
+      case GetNotifications(replyTo) =>
+        replyTo ! GetNotificationsReply(notifications.toSeq)
         this
     }
 }

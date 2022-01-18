@@ -1,7 +1,7 @@
 package org.openapitools.server.model
 
-import akka.http.scaladsl.model.DateTime
 
+import java.util.Date
 /**
  * @param message for example: ''null''
  * @param `type`  for example: ''null''
@@ -11,7 +11,7 @@ import akka.http.scaladsl.model.DateTime
 final case class Notification(
                                message: String,
                                `type`: String,
-                               date: DateTime,
+                               date: Date,
                                id: String
                              )
 
