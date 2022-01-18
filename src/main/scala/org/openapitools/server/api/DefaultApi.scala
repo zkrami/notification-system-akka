@@ -36,7 +36,7 @@ class DefaultApi(
       path("identifiers") {
         post {
           entity(as[Identifier]) { identifier =>
-            defaultService.identifiersPost(identifier = Some(identifier))
+            defaultService.identifiersPost(identifier = identifier)
           }
         }
       } ~

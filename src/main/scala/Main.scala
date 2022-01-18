@@ -25,7 +25,7 @@ import spray.json.RootJsonFormat
 
 object Main extends App {
 
-  implicit val timeout: Timeout = Timeout.zero
+  implicit val timeout: Timeout = 5.seconds
 
   // init Actor System
   implicit val system = ActorSystem(System(), "notification-system")
@@ -51,7 +51,12 @@ object Main extends App {
      * Code: 200, Message: List of identifiers, DataType: Seq[Identifier]
      */
     override def identifiersGet()(implicit toEntityMarshallerIdentifierarray: ToEntityMarshaller[Seq[Identifier]]): Route =
-      requestContext => identifiersGet200(Seq(Identifier("test1")))(toEntityMarshallerIdentifierarray)(requestContext)
+      requestContext => {
+        val result = system ? (ref => System.GetIdentifiers(ref))
+        result.flatMap{
+          case System.GetIdentifiersReply(identifiers) => identifiersGet200(identifiers)(toEntityMarshallerIdentifierarray)(requestContext)
+        }
+      }
 
     /**
      * Code: 200, Message: Identifier created
