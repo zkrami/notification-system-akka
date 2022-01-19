@@ -37,17 +37,23 @@ object Main extends App {
 
 
   object DefaultMarshaller extends DefaultApiMarshaller {
+    implicit val identifiersFormat: RootJsonFormat[Seq[Identifier]] = immSeqFormat(jsonFormat1(Identifier))
+    implicit val notificationJsonFormat: RootJsonFormat[Notification] = jsonFormat4(Notification)
+
+
     override implicit def fromEntityUnmarshallerIdentifier: FromEntityUnmarshaller[Identifier] = jsonFormat1(Identifier)
 
-    override implicit def fromEntityUnmarshallerInlineObject: FromEntityUnmarshaller[PublishNotificationPayload] = jsonFormat2(PublishNotificationPayload)(StringJsonFormat, immSeqFormat(jsonFormat1(Identifier)), ClassTag[PublishNotificationPayload])
+    override implicit def fromEntityUnmarshallerInlineObject: FromEntityUnmarshaller[PublishNotificationPayload] = jsonFormat2(PublishNotificationPayload)
 
-    override implicit def toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]] =  immSeqFormat(jsonFormat4(Notification))
+    override implicit def toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]] = immSeqFormat(jsonFormat4(Notification))
 
     override implicit def toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics] = ???
 
     override implicit def toEntityMarshallerInlineResponse2001: ToEntityMarshaller[NotificationStatistics] = ???
 
     override implicit def toEntityMarshallerIdentifierarray: ToEntityMarshaller[Seq[Identifier]] = immSeqFormat(jsonFormat1(Identifier))
+
+    override implicit def toEntityMarshallerIdentificationNotificationArray: ToEntityMarshaller[Seq[IdentifierNotification]] = immSeqFormat(jsonFormat2(IdentifierNotification))
   }
 
   object DefaultService extends DefaultApiService {
@@ -92,7 +98,6 @@ object Main extends App {
     }
 
 
-
     /**
      * Code: 200, Message: Notifications created
      * Code: 400, Message: Notifications could not be created
@@ -114,6 +119,17 @@ object Main extends App {
      * Code: 200, Message: List of all notifications sent through the system, DataType: InlineResponse2001
      */
     override def statsIdGet(id: String)(implicit toEntityMarshallerInlineResponse2001: ToEntityMarshaller[NotificationStatistics]): Route = ???
+
+    /**
+     * Code: 200, Message: The notifications designated to the identifier, DataType: Seq[Notification]
+     */
+    override def notificationsIdentifierGet(identifier: String, key: String)(implicit toEntityMarshallerIdentificationNotificationArray: ToEntityMarshaller[Seq[IdentifierNotification]]): Route = requestContext => {
+      val result = system ? (ref => System.GetIdentifierNotifications(identifier, key, ref))
+      result.flatMap {
+        case System.GetIdentifierNotificationsReply(notifications) => notificationsIdentifierGet200(notifications)(toEntityMarshallerIdentificationNotificationArray)(requestContext)
+        case FailureReply => notificationsIdentifierGet400(requestContext)
+      }
+    }
   }
 
   val api = new DefaultApi(DefaultService, DefaultMarshaller)

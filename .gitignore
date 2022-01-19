@@ -4,3 +4,4 @@ target/
 project/
 .bloop/
 .vscode/
+openapi-generator-cli.jar

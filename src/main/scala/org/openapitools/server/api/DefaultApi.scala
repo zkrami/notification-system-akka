@@ -7,11 +7,7 @@ import akka.http.scaladsl.marshalling.ToEntityMarshaller
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.http.scaladsl.unmarshalling.FromStringUnmarshaller
 import org.openapitools.server.AkkaHttpHelper._
-import org.openapitools.server.model.Identifier
-import org.openapitools.server.model.PublishNotificationPayload
-import org.openapitools.server.model.Statistics
-import org.openapitools.server.model.NotificationStatistics
-import org.openapitools.server.model.Notification
+import org.openapitools.server.model.{Identifier, IdentifierNotification, Notification, NotificationStatistics, PublishNotificationPayload, Statistics}
 
 
 class DefaultApi(
@@ -116,14 +112,18 @@ trait DefaultApiService {
   def notificationsGet()
                       (implicit toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]]): Route
 
-  def notificationsIdentifierGet200(responseNotificationarray: Seq[Notification])(implicit toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]]): Route =
+  def notificationsIdentifierGet200(responseNotificationarray: Seq[IdentifierNotification])(implicit toEntityMarshallerNotificationarray:  ToEntityMarshaller[Seq[IdentifierNotification]] ): Route =
     complete((200, responseNotificationarray))
+
+
+  def notificationsIdentifierGet400 : Route =
+    complete((400, "Identifier could not be recognized"))
 
   /**
    * Code: 200, Message: The notifications designated to the identifier, DataType: Seq[Notification]
    */
   def notificationsIdentifierGet(identifier: String, key: String)
-                                (implicit toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]]): Route
+                                (implicit toEntityMarshallerIdentificationNotificationArray: ToEntityMarshaller[Seq[IdentifierNotification]]): Route
 
   def notificationsPost200: Route =
     complete((200, "Notifications created"))
@@ -171,5 +171,6 @@ trait DefaultApiMarshaller {
 
   implicit def toEntityMarshallerIdentifierarray: ToEntityMarshaller[Seq[Identifier]]
 
+  implicit def toEntityMarshallerIdentificationNotificationArray: ToEntityMarshaller[Seq[IdentifierNotification]]
 }
 
