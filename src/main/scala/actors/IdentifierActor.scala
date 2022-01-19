@@ -15,6 +15,8 @@ object IdentifierActor {
 
   case class QueryNotification(notificationId: String, sender: ActorRef[NotificationAggregator.Command]) extends Command
 
+  case class QueryStatistics(sender: ActorRef[StatisticsAggregator.Command]) extends Command
+
   def apply(identifier: Identifier): Behavior[Command] =
     Behaviors.setup(context => new IdentifierActor(context, identifier))
 }
@@ -43,6 +45,12 @@ class IdentifierActor(context: ActorContext[IdentifierActor.Command], val identi
       } else {
         sender ! NotificationAggregator.IdentifierWorkerResponse(this.identifier, received = true, delivered = notification.get.delivered)
       }
+      this
+    }
+    case QueryStatistics(sender) => {
+      val sent = notifications.size
+      val delivered = notifications.count(_.delivered)
+      sender ! StatisticsAggregator.IdentifierWorkerResponse(sent , delivered)
       this
     }
 

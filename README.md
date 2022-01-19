@@ -4,7 +4,7 @@ An application for sending notifications to users of the eduroam network. Each u
 the state of the user actor (`IdentifierActor`) holds the notifications that have been sent to this user, and whether they have been
 delivered to the user. The first entry point of the system is an actor called `System`. A query that requires
 information from multiple actors is delegated to another actor. A client implementation is provided with this project to
-show the functionalities of the system.
+show the functionalities of the system. You can check the documentation of the api in the `openapi.yaml`. 
 
 ## Actors Architecture
 
@@ -98,6 +98,23 @@ sequenceDiagram
     NotificationAggregator->>HTTP: QueryNotificationReply(NotificationStatistics)  
     HTTP->>Client: NotificationStatistics
  ```
+
+
+Sequence Diagram of `Get /api/stats/`
+
+```mermaid
+sequenceDiagram
+
+    Client->>HTTP: Get Notification Stats  
+    HTTP->>System: QueryStatistics()
+    System->>StatisticsAggregator: Process(identifiers)
+    StatisticsAggregator->> IdentifierActor: QueryStatistics()
+    IdentifierActor->> StatisticsAggregator: IdentifierWorkerResponse(identifier, received, delivered)
+    StatisticsAggregator->>HTTP: QueryStatisticsReply(Statistics)  
+    HTTP->>Client: Statistics
+ ```
+
+
 
 
 # Perspectives

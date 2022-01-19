@@ -2,10 +2,10 @@ package org.openapitools.server.model
 
 /**
  * @param sent  for example: ''null''
- * @param received  for example: ''null''
+ * @param delivered  for example: ''null''
 */
 final case class Statistics(
-                             sent: Option[Int],
-                             received: Option[Int]
+                             sent: Int,
+                             delivered: Int
 )
 

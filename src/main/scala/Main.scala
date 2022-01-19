@@ -41,7 +41,7 @@ object Main extends App {
 
     override implicit def toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]] = immSeqFormat(jsonFormat4(Notification))
 
-    override implicit def toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics] = ???
+    override implicit def toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics] = jsonFormat2(Statistics)
 
     override implicit def toEntityMarshallerInlineResponse2001: ToEntityMarshaller[NotificationStatistics] = jsonFormat1(NotificationStatistics)
 
@@ -113,46 +113,51 @@ object Main extends App {
     /**
      * Code: 200, Message: Statistics of all notifications, DataType: InlineResponse200
      */
-    override def statsGet()(implicit toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics]): Route = ???
-
-    /**
-     * Code: 200, Message: List of identifier to whom notification has been sent
-     */
-    override def statsIdGet(id: String)(implicit toEntityMarshallerInlineResponse2001: ToEntityMarshaller[NotificationStatistics]): Route = requestContext => {
-      val result = system ? (ref => System.QueryNotification(id, ref))
+    override def statsGet()(implicit toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics]): Route = requestContext => {
+      val result = system ? (ref => System.GetNotifications(ref))
       result.flatMap {
-        case System.QueryNotificationReply(stats) => statsIdGet200(stats)(toEntityMarshallerInlineResponse2001)(requestContext)
+        case System.QueryStatisticsReply(statistics) => statsGet200(statistics)(toEntityMarshallerInlineResponse200)(requestContext)
       }
     }
 
-    /**
-     * Code: 200, Message: The notifications designated to the identifier, DataType: Seq[Notification]
-     */
-    override def notificationsIdentifierGet(identifier: String, key: String)(implicit toEntityMarshallerIdentificationNotificationArray: ToEntityMarshaller[Seq[IdentifierNotification]]): Route = requestContext => {
-      val result = system ? (ref => System.GetIdentifierNotifications(identifier, key, ref))
-      result.flatMap {
-        case System.GetIdentifierNotificationsReply(notifications) => notificationsIdentifierGet200(notifications)(toEntityMarshallerIdentificationNotificationArray)(requestContext)
-        case FailureReply => notificationsIdentifierGet400(requestContext)
+      /**
+       * Code: 200, Message: List of identifier to whom notification has been sent
+       */
+      override def statsIdGet(id: String)(implicit toEntityMarshallerInlineResponse2001: ToEntityMarshaller[NotificationStatistics]): Route = requestContext => {
+        val result = system ? (ref => System.QueryNotification(id, ref))
+        result.flatMap {
+          case System.QueryNotificationReply(stats) => statsIdGet200(stats)(toEntityMarshallerInlineResponse2001)(requestContext)
+        }
+      }
+
+      /**
+       * Code: 200, Message: The notifications designated to the identifier, DataType: Seq[Notification]
+       */
+      override def notificationsIdentifierGet(identifier: String, key: String)(implicit toEntityMarshallerIdentificationNotificationArray: ToEntityMarshaller[Seq[IdentifierNotification]]): Route = requestContext => {
+        val result = system ? (ref => System.GetIdentifierNotifications(identifier, key, ref))
+        result.flatMap {
+          case System.GetIdentifierNotificationsReply(notifications) => notificationsIdentifierGet200(notifications)(toEntityMarshallerIdentificationNotificationArray)(requestContext)
+          case FailureReply => notificationsIdentifierGet400(requestContext)
+        }
       }
     }
+
+    val api = new DefaultApi(DefaultService, DefaultMarshaller)
+
+    val host = "localhost"
+    val port = 8001
+
+    val bindingFuture = Http().newServerAt(host, port).bind(pathPrefix("api") {
+      api.route
+    })
+    println(s"Server online at http://${host}:${port}/\nPress RETURN to stop...")
+
+    // bindingFuture.failed.foreach { ex =>
+    //  println(s"${ex} Failed to bind to ${host}:${port}!")
+    //}
+
+    StdIn.readLine() // let it run until user presses return
+    // bindingFuture
+    //  .flatMap(_.unbind()) // trigger unbinding from the port
+    //.onComplete(_ => system.terminate()) // and shutdown when done
   }
-
-  val api = new DefaultApi(DefaultService, DefaultMarshaller)
-
-  val host = "localhost"
-  val port = 8001
-
-  val bindingFuture = Http().newServerAt(host, port).bind(pathPrefix("api") {
-    api.route
-  })
-  println(s"Server online at http://${host}:${port}/\nPress RETURN to stop...")
-
-  // bindingFuture.failed.foreach { ex =>
-  //  println(s"${ex} Failed to bind to ${host}:${port}!")
-  //}
-
-  StdIn.readLine() // let it run until user presses return
-  // bindingFuture
-  //  .flatMap(_.unbind()) // trigger unbinding from the port
-  //.onComplete(_ => system.terminate()) // and shutdown when done
-}
