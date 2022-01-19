@@ -35,8 +35,9 @@ Sequence Diagram of `POST /api/notifications`
 sequenceDiagram
     Client->>HTTP: Post notifications 
     HTTP->>System: SendNotifications(message,Identifier[])
-    System->>NotificationPublisher: PublishNotification(message,Identifier[])
+    System->>NotificationPublisher: Process(message,Identifier[])
     NotificationPublisher->> IdentifierActor: AddNotification(Notification)
+    IdentifierActor->> NotificationPublisher :IdentifierWorkerAck
     NotificationPublisher->>HTTP: SuccessReply  
     HTTP->>Client: CREATED
  ```
@@ -64,4 +65,18 @@ sequenceDiagram
     System->>IdentifierActor: GetNotifications()
     IdentifierActor->>HTTP: IdentifierNotification[]
     HTTP->>Client: IdentifierNotification[]
+ ```
+
+
+Sequence Diagram of `Get /api/stats/{id}`
+
+```mermaid
+sequenceDiagram
+    Client->>HTTP: Get Notification Stats  
+    HTTP->>System: QueryNotification(notificationId)
+    System->>NotificationAggregator: Process(notificationId)
+    NotificationAggregator->> IdentifierActor: QueryNotification(notificationId)
+    IdentifierActor->> NotificationAggregator :IdentifierWorkerResponse(identifier, received, delivered)
+    NotificationAggregator->>HTTP: QueryNotificationReply(NotificationStatistics)  
+    HTTP->>Client: NotificationStatistics
  ```

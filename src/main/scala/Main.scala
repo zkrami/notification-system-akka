@@ -32,6 +32,7 @@ object Main extends App {
   object DefaultMarshaller extends DefaultApiMarshaller {
     implicit val identifiersFormat: RootJsonFormat[Seq[Identifier]] = immSeqFormat(jsonFormat1(Identifier))
     implicit val notificationJsonFormat: RootJsonFormat[Notification] = jsonFormat4(Notification)
+    implicit val notificationStatisticsItemJsonFormat: RootJsonFormat[NotificationStatisticsItem] = jsonFormat2(NotificationStatisticsItem)
 
 
     override implicit def fromEntityUnmarshallerIdentifier: FromEntityUnmarshaller[Identifier] = jsonFormat1(Identifier)
@@ -42,7 +43,7 @@ object Main extends App {
 
     override implicit def toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics] = ???
 
-    override implicit def toEntityMarshallerInlineResponse2001: ToEntityMarshaller[NotificationStatistics] = ???
+    override implicit def toEntityMarshallerInlineResponse2001: ToEntityMarshaller[NotificationStatistics] = jsonFormat1(NotificationStatistics)
 
     override implicit def toEntityMarshallerIdentifierarray: ToEntityMarshaller[Seq[Identifier]] = immSeqFormat(jsonFormat1(Identifier))
 
@@ -115,9 +116,14 @@ object Main extends App {
     override def statsGet()(implicit toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics]): Route = ???
 
     /**
-     * Code: 200, Message: List of all notifications sent through the system, DataType: InlineResponse2001
+     * Code: 200, Message: List of identifier to whom notification has been sent
      */
-    override def statsIdGet(id: String)(implicit toEntityMarshallerInlineResponse2001: ToEntityMarshaller[NotificationStatistics]): Route = ???
+    override def statsIdGet(id: String)(implicit toEntityMarshallerInlineResponse2001: ToEntityMarshaller[NotificationStatistics]): Route = requestContext => {
+      val result = system ? (ref => System.QueryNotification(id, ref))
+      result.flatMap {
+        case System.QueryNotificationReply(stats) => statsIdGet200(stats)(toEntityMarshallerInlineResponse2001)(requestContext)
+      }
+    }
 
     /**
      * Code: 200, Message: The notifications designated to the identifier, DataType: Seq[Notification]

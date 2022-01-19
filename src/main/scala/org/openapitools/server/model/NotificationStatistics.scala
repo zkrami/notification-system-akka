@@ -1,11 +1,10 @@
 package org.openapitools.server.model
 
-/**
- * @param sent  for example: ''null''
- * @param received  for example: ''null''
-*/
-final case class NotificationStatistics(
-                                      sent: Option[Seq[String]],
-                                      received: Option[Seq[String]]
-)
 
+final case class NotificationStatisticsItem(
+                                             identifier: String,
+                                             delivered: Boolean
+                                           )
+
+
+final case class NotificationStatistics(stats: Seq[NotificationStatisticsItem])

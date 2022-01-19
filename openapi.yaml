@@ -128,10 +128,10 @@ paths:
 
       responses:
         200:
-          description: Identifier created
+          description: Identifier deleted
           content: {}
         400:
-          description: Identifier could not be created
+          description: Identifier could not be deleted
           content: {}
 
   /stats/:
@@ -168,14 +168,17 @@ paths:
           content:
             '*/*':
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    identifier:
-                      type: string
-                    delivered:
-                      type: boolean
+                type: object
+                properties:
+                  stats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        identifier:
+                          type: string
+                        delivered:
+                          type: boolean
 
 
 

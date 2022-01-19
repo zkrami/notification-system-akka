@@ -13,6 +13,8 @@ object IdentifierActor {
 
   case class GetNotifications(replyTo: ActorRef[System.Reply]) extends Command
 
+  case class QueryNotification(notificationId: String, sender: ActorRef[NotificationAggregator.Command]) extends Command
+
   def apply(identifier: Identifier): Behavior[Command] =
     Behaviors.setup(context => new IdentifierActor(context, identifier))
 }
@@ -32,6 +34,15 @@ class IdentifierActor(context: ActorContext[IdentifierActor.Command], val identi
     case GetNotifications(replyTo) => {
       replyTo ! GetIdentifierNotificationsReply(notifications.toSeq)
       notifications = notifications.map(notification => IdentifierNotification(delivered = true, notification.notification))
+      this
+    }
+    case QueryNotification(notificationId, sender) => {
+      val notification = notifications.find(_.notification.id == notificationId)
+      if (notification.isEmpty) {
+        sender ! NotificationAggregator.IdentifierWorkerResponse(this.identifier, received = false, delivered = false)
+      } else {
+        sender ! NotificationAggregator.IdentifierWorkerResponse(this.identifier, received = true, delivered = notification.get.delivered)
+      }
       this
     }
 
