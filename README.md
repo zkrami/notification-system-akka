@@ -40,3 +40,17 @@ sequenceDiagram
     System->>HTTP: Notification[]
     HTTP->>Client: Notification[]
  ```
+
+
+
+
+Sequence Diagram of `GET /api/notifications/identifier`
+
+```mermaid
+sequenceDiagram
+    Client->>HTTP: Get identifier notifications 
+    HTTP->>System: GetIdentifierNotifications(identifier)
+    System->>IdentifierActor: GetNotifications()
+    IdentifierActor->>HTTP: IdentifierNotification[]
+    HTTP->>Client: IdentifierNotification[]
+ ```

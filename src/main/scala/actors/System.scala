@@ -6,8 +6,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.AbstractBehavior
 import akka.actor.typed.scaladsl.ActorContext
 import akka.http.scaladsl.model.DateTime
-import org.openapitools.server.model.Identifier
-import org.openapitools.server.model.Notification
+import org.openapitools.server.model.{Identifier, IdentifierNotification, Notification}
 
 
 object System {
@@ -21,7 +20,10 @@ object System {
 
   case class GetNotifications(replyTo: ActorRef[Reply]) extends Command
 
+  case class GetIdentifierNotifications(identifier: String, key:String,  replyTo: ActorRef[Reply]) extends Command
+
   case class SendNotification(recipients: Seq[Identifier], message: String, replyTo: ActorRef[Reply]) extends Command
+
 
   trait Reply
 
@@ -32,6 +34,8 @@ object System {
   case class GetIdentifiersReply(identifiers: Seq[Identifier]) extends Reply
 
   case class GetNotificationsReply(notifications: Seq[Notification]) extends Reply
+
+  case class GetIdentifierNotificationsReply(notification: Seq[IdentifierNotification]) extends Reply
 
   def apply(): Behavior[Command] =
     Behaviors.setup(context => new System(context))
@@ -72,5 +76,14 @@ class System(context: ActorContext[System.Command]) extends AbstractBehavior[Sys
       case GetNotifications(replyTo) =>
         replyTo ! GetNotificationsReply(notifications.toSeq)
         this
+
+      case GetIdentifierNotifications(identifier, key , replyTo) =>
+        if (identifiers.contains(identifier)) {
+          identifiers(identifier) ! IdentifierActor.GetNotifications(replyTo)
+        } else {
+          replyTo ! FailureReply
+        }
+        this
+
     }
 }

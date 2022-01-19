@@ -91,10 +91,7 @@ object Main extends App {
       }
     }
 
-    /**
-     * Code: 200, Message: The notifications designated to the identifier, DataType: Seq[Notification]
-     */
-    override def notificationsIdentifierGet(identifier: String, key: String)(implicit toEntityMarshallerNotificationarray: ToEntityMarshaller[Seq[Notification]]): Route = ???
+
 
     /**
      * Code: 200, Message: Notifications created

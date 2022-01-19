@@ -80,7 +80,7 @@ paths:
                schema:
                  type: array 
                  items: 
-                    $ref: '#/components/schemas/Notification'
+                    $ref: '#/components/schemas/IdentifierNotification'
                     
   /identifiers/:
     get: 
@@ -192,7 +192,18 @@ components:
       properties:
         identifier:
           type: string 
-      
+
+    IdentifierNotification:
+        type: object
+        required:
+          - notification
+          - delivered
+        properties:
+          delivered:
+            type: boolean
+          notification:
+            $ref: '#/components/schemas/Notification'
+
     Notification: 
       required: 
       - message 
