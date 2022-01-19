@@ -18,6 +18,17 @@ sequenceDiagram
     HTTP->>Client: Identifier[]
  ```
 
+Sequence Diagram of `DELETE /api/identifiers/identifier`
+
+```mermaid
+sequenceDiagram
+    Client->>HTTP: Delete Identifier 
+    HTTP->>System: DeleteIdentifiers(identifier)
+    System->>HTTP: SuccessReply
+    HTTP->>Client: DELETED
+ ```
+
+
 Sequence Diagram of `POST /api/notifications`
 
 ```mermaid

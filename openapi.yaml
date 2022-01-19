@@ -3,222 +3,220 @@ info:
   title: Api Notifier
   description: Notification system for eduroam network
   version: 1.0.0
-  
+
 servers:
-- url: http://localhost:8001/api/
+  - url: http://localhost:8001/api/
 paths:
   /notifications/:
-    get: 
-      summary: Get all notifications in the system 
-      description: Get all notifications sent through the system 
-      responses: 
-          200:
-            description: List of all notifications sent through the system 
-            content: 
-              '*/*':
-               schema:
-                 type: array 
-                 items: 
-                    $ref: '#/components/schemas/Notification'
-      
-            
-    post: 
+    get:
+      summary: Get all notifications in the system
+      description: Get all notifications sent through the system
+      responses:
+        200:
+          description: List of all notifications sent through the system
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+
+
+    post:
       summary: Send a notification for idenetifiers
       description: Send a notification for multiple idenetifiers
-      responses: 
-          200:
-            description: Notification created
-            content: {}
-          400:
-            description: Notification could not be created
-            content: {}
-            
+      responses:
+        200:
+          description: Notification created
+          content: {}
+        400:
+          description: Notification could not be created
+          content: {}
+
       requestBody:
         content:
           application/json:
             schema:
-              type: object 
+              type: object
               required:
-              - identifiers 
-              - message 
-            
+                - identifiers
+                - message
+
               properties:
-                message: 
-                  type: string 
-                identifiers: 
-                  type: array 
-                  items: 
-                      type: object 
-                      required:
-                        - identifier
-                      properties:
-                        identifier:
-                          type: string 
-  
+                message:
+                  type: string
+                identifiers:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - identifier
+                    properties:
+                      identifier:
+                        type: string
+
   /notifications/identifier:
-   get: 
-      summary: Get notifications for an identifier 
+    get:
+      summary: Get notifications for an identifier
       description: Get notifications for an identifier authenticated using a signed key
-      parameters: 
-      - name: identifier
-        in: query 
-        description: identifier of the user 
-        required: true 
-        schema:
-          type: string 
-      - name: key 
-        in: query 
-        description: the signed key used for authentication 
-        required: true 
-        schema:
-          type: string 
-      responses: 
-          200:
-            description: The notifications designated to the identifier 
-            content: 
-              '*/*':
-               schema:
-                 type: array 
-                 items: 
-                    $ref: '#/components/schemas/IdentifierNotification'
-                    
+      parameters:
+        - name: identifier
+          in: query
+          description: identifier of the user
+          required: true
+          schema:
+            type: string
+        - name: key
+          in: query
+          description: the signed key used for authentication
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: The notifications designated to the identifier
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IdentifierNotification'
+
   /identifiers/:
-    get: 
-      summary: Get all identifiers in the system  
-      description: Get all identifiers in the system 
-                
-      responses: 
-          200:
-            description: List of identifiers  
-            content: 
-              '*/*':
-               schema:
-                type: array 
-                items: 
+    get:
+      summary: Get all identifiers in the system
+      description: Get all identifiers in the system
+
+      responses:
+        200:
+          description: List of identifiers
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
                   $ref: '#/components/schemas/Identifier'
-            
-    post: 
-      summary: Create new identifier 
-      description: Create new identifier 
-      responses: 
-          200:
-              description: Identifier created 
-              content: {}
-          400:
-              description: Identifier could not be created 
-              content: {}
-                
+
+    post:
+      summary: Create new identifier
+      description: Create new identifier
+      responses:
+        200:
+          description: Identifier created
+          content: {}
+        400:
+          description: Identifier could not be created
+          content: {}
+
       requestBody:
         content:
           application/json:
             schema:
-               $ref: '#/components/schemas/Identifier'      
-               
-  
-  /identifiers/{identifier}:              
-    delete: 
-      summary: Delete an identifier 
-      description: Delete an idetifier 
-      parameters: 
+              $ref: '#/components/schemas/Identifier'
+
+
+  /identifiers/{identifier}:
+    delete:
+      summary: Delete an identifier
+      description: Delete an idetifier
+      parameters:
         - name: identifier
-          in: path 
+          in: path
           schema:
-            type: string 
-          required: true 
-        
-      responses: 
-          200:
-              description: Identifier created 
-              content: {}
-          400:
-              description: Identifier could not be created 
-              content: {}
-  
+            type: string
+          required: true
+
+      responses:
+        200:
+          description: Identifier created
+          content: {}
+        400:
+          description: Identifier could not be created
+          content: {}
+
   /stats/:
-    get: 
-      summary: Get statistics of notifications 
+    get:
+      summary: Get statistics of notifications
       description: Get statistics of sent and received notifications
-      responses: 
-          200:
-            description: Statistics of all notifications 
-            content: 
-              '*/*':
-               schema:
-                 type: object 
-                 properties:
-                  sent: 
-                    type: integer 
+      responses:
+        200:
+          description: Statistics of all notifications
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  sent:
+                    type: integer
                   received:
                     type: integer
-    
+
   /stats/{id}:
-    get: 
+    get:
       summary: Get statistics of a single notification
-      description: Get the identifiers that received the notification and the identifiers to whom the notification has been sent
-      parameters: 
-      - name: id 
-        in: path 
-        required: true 
-        schema:
-          type: string 
-          
-      responses: 
-          200:
-            description: List of all notifications sent through the system 
-            content: 
-              '*/*':
-               schema:
-                 type: object
-                 properties: 
-                  sent: 
-                    type: array 
-                    items:
-                      type: string 
-                  recieved: 
-                    type: array 
-                    items:
-                      type: string 
-                  
-                       
-                 
-        
- 
+      description: Get the identifiers to whom the notification has been sent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: the identifiers to whom the notification has been sent
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    identifier:
+                      type: string
+                    delivered:
+                      type: boolean
+
+
+
+
+
 components:
   schemas:
-    Identifier: 
-      type: object 
-      required: 
-      - identifier
+    Identifier:
+      type: object
+      required:
+        - identifier
       properties:
         identifier:
-          type: string 
+          type: string
 
     IdentifierNotification:
-        type: object
-        required:
-          - notification
-          - delivered
-        properties:
-          delivered:
-            type: boolean
-          notification:
-            $ref: '#/components/schemas/Notification'
+      type: object
+      required:
+        - notification
+        - delivered
+      properties:
+        delivered:
+          type: boolean
+        notification:
+          $ref: '#/components/schemas/Notification'
 
-    Notification: 
-      required: 
-      - message 
-      - type 
-      - date 
-      - id 
-      type: object 
-      properties: 
-        message: 
-          type: string 
-        type: 
-          type: string 
-        date: 
-          type: object 
-        id: 
+    Notification:
+      required:
+        - message
+        - type
+        - date
+        - id
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+        date:
+          type: object
+        id:
           type: string 
           
  

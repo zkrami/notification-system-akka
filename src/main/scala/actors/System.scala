@@ -18,9 +18,11 @@ object System {
 
   case class GetIdentifiers(replyTo: ActorRef[Reply]) extends Command
 
+  case class DeleteIdentifier(identifier: String, replyTo: ActorRef[Reply]) extends Command
+
   case class GetNotifications(replyTo: ActorRef[Reply]) extends Command
 
-  case class GetIdentifierNotifications(identifier: String, key:String,  replyTo: ActorRef[Reply]) extends Command
+  case class GetIdentifierNotifications(identifier: String, key: String, replyTo: ActorRef[Reply]) extends Command
 
   case class SendNotification(recipients: Seq[Identifier], message: String, replyTo: ActorRef[Reply]) extends Command
 
@@ -77,9 +79,18 @@ class System(context: ActorContext[System.Command]) extends AbstractBehavior[Sys
         replyTo ! GetNotificationsReply(notifications.toSeq)
         this
 
-      case GetIdentifierNotifications(identifier, key , replyTo) =>
+      case GetIdentifierNotifications(identifier, key, replyTo) =>
         if (identifiers.contains(identifier)) {
           identifiers(identifier) ! IdentifierActor.GetNotifications(replyTo)
+        } else {
+          replyTo ! FailureReply
+        }
+        this
+      case DeleteIdentifier(identifier, replyTo) =>
+        if (identifiers.contains(identifier)) {
+          context.stop(identifiers(identifier))
+          identifiers -= identifier
+          replyTo ! SuccessReply
         } else {
           replyTo ! FailureReply
         }

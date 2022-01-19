@@ -91,6 +91,12 @@ trait DefaultApiService {
    */
   def identifiersIdentifierDelete(identifier: String): Route
 
+  def identifiersDeleted200: Route =
+    complete((200, "Identifier Deleted"))
+
+  def identifiersDeleted400: Route =
+    complete((400, "Identifier could not be deleted"))
+
   def identifiersPost200: Route =
     complete((200, "Identifier created"))
 
