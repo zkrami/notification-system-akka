@@ -1,0 +1,37 @@
+
+<mat-card class="add-identifier-card">
+
+    <mat-card-title>Add Identificatier</mat-card-title>
+
+
+    <mat-form-field class="full-width" appearance="fill">
+        <mat-label>Identifier</mat-label>
+        <input matInput placeholder="Ex. 11931512" #identifierFieldAdd />
+    </mat-form-field>
+
+
+    <button mat-flat-button color="primary" (click)="addIdentifier(identifierFieldAdd.value)"
+        class="full-width">Add</button>
+
+
+</mat-card>
+<mat-card class="identifiers-table-card">
+    <mat-card-title>Identificatiers</mat-card-title>
+
+<table mat-table [dataSource]="dataSource" class="mat-elevation-z0 demo-table full-width">
+    <!-- Identifier Column -->
+    <ng-container matColumnDef="identifier">
+      <th mat-header-cell *matHeaderCellDef>IDENTIFIER</th>
+      <td mat-cell *matCellDef="let element">{{element.identifier}}</td>
+    </ng-container>
+  
+    <!-- Delete Column -->
+    <ng-container matColumnDef="delete">
+      <th mat-header-cell *matHeaderCellDef>DELETE</th>
+      <td mat-cell *matCellDef="let element">{{element.identifier}}</td>
+    </ng-container>
+  
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</mat-card>
