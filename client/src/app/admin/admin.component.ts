@@ -14,22 +14,38 @@ export class AdminComponent implements OnInit {
 
   constructor(private service: DefaultService, private _snackBar: MatSnackBar) { }
 
-  displayedColumns = ["identifier" , "delete"] 
+  displayedColumns = ["identifier", "delete"]
   dataSource: Identifier[] = [];
 
-  async loadIdentifiers(){
+  async loadIdentifiers() {
 
-    this.dataSource =  await firstValueFrom(this.service.identifiersGet());
+    this.dataSource = await firstValueFrom(this.service.identifiersGet());
 
   }
   ngOnInit(): void {
 
-    this.loadIdentifiers(); 
+    this.loadIdentifiers();
   }
 
 
   log(message: any) {
     console.log("@LOG ", message);
+  }
+
+  async deleteIdentifier(identifierId: string) {
+
+
+    try {
+      await firstValueFrom(this.service.identifiersIdentifierDelete(identifierId));
+      this._snackBar.open("Identifier Deleted Successfully ✅", "OK");
+
+    } catch (ex) {
+      this._snackBar.open("Identifier Could not Be Deleted ❌", "OK");
+      this.log(ex);
+    } finally {
+      this.loadIdentifiers();
+    }
+
   }
 
   async addIdentifier(identifier: string) {
@@ -41,6 +57,8 @@ export class AdminComponent implements OnInit {
     } catch (ex) {
       this._snackBar.open("Identifier Could not Be Added ❌", "OK");
       this.log(ex);
+    } finally {
+      this.loadIdentifiers();
     }
   }
 }
