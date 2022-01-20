@@ -121,4 +121,8 @@ sequenceDiagram
 
 - Error handling (For the moment a query actor who is waiting for responses from other actors is always supposed to
   receive this response, ex: `NotificationPublisher`)
-- A query actor should ignore the actors that have been deleted  
+- A query actor should ignore the actors that have been deleted
+
+# Launching the project 
+To launch the http server run `sbt run`. 
+To launch the client example go to `cd client/`, and run `npm run start`. 
