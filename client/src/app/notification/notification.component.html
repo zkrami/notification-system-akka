@@ -1,0 +1,21 @@
+
+<mat-card class="notifications-table-card">
+    <mat-card-title>Notification Details</mat-card-title>
+
+
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z0  full-width">
+        <ng-container matColumnDef="identifier">
+            <th mat-header-cell *matHeaderCellDef>Identifier</th>
+            <td mat-cell *matCellDef="let element">{{element.identifier}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="delivered">
+            <th mat-header-cell *matHeaderCellDef>Delivered</th>
+            <td mat-cell *matCellDef="let element">{{element.delivered ? '✅' : '❌' }}</td>
+        </ng-container>
+
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</mat-card>

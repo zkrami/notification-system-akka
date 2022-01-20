@@ -31,12 +31,14 @@ import { MatCommonModule } from '@angular/material/core';
 
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { HttpClientModule } from '@angular/common/http';
-
+import { NotificationComponent } from './notification/notification.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 @NgModule({
   declarations: [
     AppComponent,
     AdminComponent,
-    HomeComponent
+    HomeComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
@@ -51,7 +53,8 @@ import { HttpClientModule } from '@angular/common/http';
     MatTableModule,
     MatSnackBarModule,
     HttpClientModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatCheckboxModule
     
   ],
   providers: [],

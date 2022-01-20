@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { firstValueFrom, Observable, ReplaySubject } from 'rxjs';
-import { DefaultService, Identifier } from 'src/service';
+import { DefaultService, Identifier, Notification } from 'src/service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DataSource } from '@angular/cdk/collections';
+import { DataSource, SelectionModel } from '@angular/cdk/collections';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -12,19 +13,52 @@ import { DataSource } from '@angular/cdk/collections';
 })
 export class AdminComponent implements OnInit {
 
-  constructor(private service: DefaultService, private _snackBar: MatSnackBar) { }
+  constructor(private service: DefaultService, private _snackBar: MatSnackBar, private router: Router) { }
 
-  displayedColumns = ["identifier", "delete"]
-  dataSource: Identifier[] = [];
+  displayedColumnsIdentifier = ["identifier", "delete"]
+  dataSourceIdentifier: Identifier[] = [];
+
+  displayedIdentifierSelectionColumns = ["identifier", "select"]
+
+  selection = new SelectionModel<Identifier>(true, []);
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSourceIdentifier.length;
+    return numSelected === numRows;
+  }
+  masterToggle() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      return;
+    }
+
+    this.selection.select(...this.dataSourceIdentifier);
+  }
+
 
   async loadIdentifiers() {
 
-    this.dataSource = await firstValueFrom(this.service.identifiersGet());
+    this.dataSourceIdentifier = await firstValueFrom(this.service.identifiersGet());
 
   }
+
+
+  displayedColumnsNotification = ["id", "message", "date", "detail"]
+  dataSourceNotification: Notification[] = [];
+
+  async loadNotifications() {
+
+    this.dataSourceNotification = await firstValueFrom(this.service.notificationsGet());
+
+  }
+
+
+
   ngOnInit(): void {
 
     this.loadIdentifiers();
+    this.loadNotifications();
+
   }
 
 
@@ -44,6 +78,20 @@ export class AdminComponent implements OnInit {
       this.log(ex);
     } finally {
       this.loadIdentifiers();
+    }
+
+  }
+
+  async postNotification(message: string) {
+
+    try {
+      await firstValueFrom(this.service.notificationsPost({ message, identifiers: this.selection.selected }));
+      this._snackBar.open("Notification Posted Successfully ✅", "OK");
+    } catch (ex) {
+      this._snackBar.open("Notification Could not Be Posted ❌", "OK");
+      this.log(ex);
+    } finally {
+      this.loadNotifications();
     }
 
   }

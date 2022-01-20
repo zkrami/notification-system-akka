@@ -1,11 +1,16 @@
-import { NgModule } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminComponent } from './admin/admin.component';
+import { NotificationComponent } from './notification/notification.component';
 
 const routes: Routes = [
   {
     path : "admin" ,
     component : AdminComponent
+  } , 
+  {
+    path : "notification/:id",
+    component : NotificationComponent
   }
 ];
 
