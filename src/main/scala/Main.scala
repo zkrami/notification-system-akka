@@ -114,7 +114,7 @@ object Main extends App {
      * Code: 200, Message: Statistics of all notifications, DataType: InlineResponse200
      */
     override def statsGet()(implicit toEntityMarshallerInlineResponse200: ToEntityMarshaller[Statistics]): Route = requestContext => {
-      val result = system ? (ref => System.GetNotifications(ref))
+      val result = system ? (ref => System.QueryStatistics(ref))
       result.flatMap {
         case System.QueryStatisticsReply(statistics) => statsGet200(statistics)(toEntityMarshallerInlineResponse200)(requestContext)
       }

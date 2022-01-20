@@ -64,7 +64,7 @@ class System(context: ActorContext[System.Command]) extends AbstractBehavior[Sys
         this
       case CreateIdentifier(identifier, ref) =>
         // if the identifier exists already send failure
-        if (identifiers.contains(identifier.identifier)) {
+        if (identifiers.contains(identifier.identifier) || identifier.identifier.isEmpty) {
           ref ! FailureReply
         } else {
           identifiers += identifier.identifier -> context.spawn(IdentifierActor(identifier), s"identifier-${identifier.identifier}")
@@ -106,6 +106,10 @@ class System(context: ActorContext[System.Command]) extends AbstractBehavior[Sys
       case QueryNotification(notificationId, replyTo) =>
         val aggregator = context.spawnAnonymous(NotificationAggregator(this.identifiers, notificationId, replyTo))
         aggregator ! NotificationAggregator.Process
+        this
+      case QueryStatistics(replyTo) =>
+        val aggregator = context.spawnAnonymous(StatisticsAggregator(this.identifiers,replyTo))
+        aggregator ! StatisticsAggregator.Process
         this
 
     }

@@ -31,10 +31,10 @@ class NotificationPublisher(context: ActorContext[NotificationPublisher.Command]
   def onProcess(): Behavior[Command] = {
 
     // if an identifier doesn't exist return failure
-    if (recipients.forall(id => state.contains(id.identifier))) {
+    if (!recipients.forall(id => state.contains(id.identifier))) {
       ref ! System.FailureReply
     } else {
-      identifiersActor = recipients.map(id => state.get(id.identifier)).map(_.get)
+      identifiersActor = recipients.map(id => state(id.identifier))
 
       identifiersActor.foreach(actor => {
         actor ! IdentifierActor.AddNotification(notification, context.self)
